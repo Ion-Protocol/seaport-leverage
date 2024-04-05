@@ -107,7 +107,6 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             bound(resultingAdditionalDeposit, MIN_RESULTING_ADDITIONAL_DEPOSIT, MAX_RESULTING_ADDITIONAL_DEPOSIT);
 
         locs.initialDeposit = bound(locs.initialDeposit, 1, resultingAdditionalDeposit - 1);
-
         locs.collateralToPurchase = resultingAdditionalDeposit - locs.initialDeposit;
 
         setERC20Balance(address(COLLATERAL), address(this), locs.initialDeposit);
@@ -132,21 +131,23 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             order, locs.initialDeposit, resultingAdditionalDeposit, amountToBorrow, new bytes32[](0)
         );
 
-        uint256 normalizedDebtAfter = weEthIonPool.normalizedDebt(0, address(this));
+        (uint256 collateralAfter, uint256 normalizedDebtAfter) = weEthIonPool.vault(0, address(this));
         uint256 debtAfterRad = normalizedDebtAfter * locs.rate;
-
-        (uint256 collateralAfter, uint256 debtAfter) = weEthIonPool.vault(0, address(this));
-
+        
         // no dust left in the contract in base asset or collateral asset
         assertLe(BASE.balanceOf(address(weEthSeaportLeverage)), 1, "base asset dust below 1 wei");
         assertEq(COLLATERAL.balanceOf(address(weEthSeaportLeverage)), 0, "no collateral asset dust");
 
         // exact desired amount of collateral reached
         assertEq(collateralAfter, resultingAdditionalDeposit, "resulting collateral amount");
+        assertEq(
+            collateralAfter - collateralBefore,
+            locs.initialDeposit + locs.collateralToPurchase,
+            "exact collateral amount added"
+        );
 
         // resulting debt amount under maximum dust bounded by the rate
         assertLe(debtAfterRad - amountToBorrow * RAY, locs.rate, "resulting debt rounding error rate bound");
-        // assertEq(debtAfter, amountToBorrow, "resulting debt amount in wad");
 
         // exact amounts of assets transferred
         assertEq(COLLATERAL.balanceOf(address(this)), 0, "all initial deposit transferred");
@@ -175,7 +176,8 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             locs.startingInitialDeposit, locs.startingResultingAdditionalCollateral, locs.maxResultingDebt
         );
 
-        (uint256 collateralBefore, uint256 debtBefore) = weEthIonPool.vault(0, address(this));
+        (uint256 collateralBefore, uint256 normalizedDebtBefore) = weEthIonPool.vault(0, address(this));
+        uint256 debtBeforeWad = normalizedDebtBefore.mulDiv(locs.rate, RAY);
 
         // the leverage amount requested by user
         resultingAdditionalDeposit =
@@ -203,12 +205,10 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             order, locs.initialDeposit, resultingAdditionalDeposit, amountToBorrow, new bytes32[](0)
         );
 
-        uint256 normalizedDebtAfter = weEthIonPool.normalizedDebt(0, address(this));
-        uint256 debtAfterRad = normalizedDebtAfter * locs.rate;
-        (uint256 collateralAfter, uint256 debtAfter) = weEthIonPool.vault(0, address(this));
+        (uint256 collateralAfter, uint256 normalizedDebtAfter) = weEthIonPool.vault(0, address(this));
+        uint256 debtAfterWad = normalizedDebtAfter.mulDiv(locs.rate, RAY);
 
-        uint256 expectedDebtAfter = debtBefore + amountToBorrow;
-        uint256 expectedDebtAfterRad = expectedDebtAfter * RAY;
+        uint256 expectedDebtAfterWad = debtBeforeWad + amountToBorrow;
 
         // no dust left in the contract in base asset or collateral asset
         assertLe(BASE.balanceOf(address(weEthSeaportLeverage)), 1, "base asset dust below 1 wei");
@@ -218,8 +218,7 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
         assertEq(collateralAfter, collateralBefore + resultingAdditionalDeposit, "resulting collateral amount");
 
         // resulting debt amount with precision loss bounded by the rate
-        assertLe(debtAfter, expectedDebtAfter + 1, "resulting debt amount in wad within 1 wei");
-        // assertLe(debtAfterRad - expectedDebtAfterRad, locs.rate, "resulting debt rounding error rate bound");
+        assertLe(debtAfterWad - expectedDebtAfterWad, 1, "resulting debt in wad rounding error 1 wei bound");
 
         // exact amounts of assets transferred
         assertEq(COLLATERAL.balanceOf(address(this)), 0, "all initial deposit transferred");
@@ -248,7 +247,8 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             locs.startingInitialDeposit, locs.startingResultingAdditionalCollateral, locs.maxResultingDebt
         );
 
-        (uint256 collateralBefore, uint256 debtBefore) = weEthIonPool.vault(0, address(this));
+        (uint256 collateralBefore, uint256 normalizedDebtBefore) = weEthIonPool.vault(0, address(this));
+        uint256 debtBeforeWad = normalizedDebtBefore.mulDiv(locs.rate, RAY);
 
         // the leverage amount requested by user
         resultingAdditionalDeposit =
@@ -278,12 +278,10 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
             order, locs.initialDeposit, resultingAdditionalDeposit, amountToBorrow, new bytes32[](0)
         );
 
-        uint256 normalizedDebtAfter = weEthIonPool.normalizedDebt(0, address(this));
-        uint256 debtAfterRad = normalizedDebtAfter * locs.rate;
-        (uint256 collateralAfter, uint256 debtAfter) = weEthIonPool.vault(0, address(this));
+        (uint256 collateralAfter, uint256 normalizedDebtAfter) = weEthIonPool.vault(0, address(this));
+        uint256 debtAfterWad = normalizedDebtAfter.mulDiv(locs.rate, RAY);
 
-        uint256 expectedDebtAfter = debtBefore + amountToBorrow;
-        uint256 expectedDebtAfterRad = expectedDebtAfter * RAY;
+        uint256 expectedDebtAfterWad = debtBeforeWad + amountToBorrow;
 
         // no dust left in the contract in base asset or collateral asset
         assertLe(BASE.balanceOf(address(weEthSeaportLeverage)), 1, "base asset dust below 1 wei");
@@ -293,8 +291,7 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
         assertEq(collateralAfter, collateralBefore + resultingAdditionalDeposit, "resulting collateral amount");
 
         // resulting debt amount under maximum dust bounded by the rate
-        assertLe(debtAfter, expectedDebtAfter + 1, "resulting debt amount in wad within 1 wei");
-        // assertLe(debtAfterRad - expectedDebtAfterRad, locs.rate, "resulting debt rounding error rate bound");
+        assertLe(debtAfterWad - expectedDebtAfterWad, 1, "resulting debt amount in wad within 1 wei");
 
         // exact amounts of assets transferred
         assertEq(COLLATERAL.balanceOf(address(this)), 0, "all initial deposit transferred");
