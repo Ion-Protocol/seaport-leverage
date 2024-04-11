@@ -3,13 +3,12 @@ pragma solidity 0.8.24;
 
 import { SeaportBase } from "./../../src/SeaportBase.sol";
 import { SeaportTestBase } from "../SeaportTestBase.sol";
-import { IIonPool } from "./../../src/interfaces/IIonPool.sol";
 import { SeaportLeverage } from "./../../src/SeaportLeverage.sol";
+
 import {
     OfferItem,
     ConsiderationItem,
     Order,
-    OrderParameters,
     OrderComponents
 } from "seaport-types/src/lib/ConsiderationStructs.sol";
 import { OrderType, ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";

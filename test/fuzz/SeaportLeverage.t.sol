@@ -2,10 +2,12 @@
 pragma solidity 0.8.24;
 
 import { SeaportTestBase } from "../SeaportTestBase.sol";
-import { WadRayMath, WAD, RAY, RAD } from "ion-protocol/src/libraries/math/WadRayMath.sol";
+
+import { WadRayMath, RAY } from "@ionprotocol/libraries/math/WadRayMath.sol";
+
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+
 import { Order } from "seaport-types/src/lib/ConsiderationStructs.sol";
-import { console2 } from "forge-std/console2.sol";
 
 contract SeaportLeverage_FuzzTest is SeaportTestBase {
     using WadRayMath for uint256;
@@ -112,7 +114,7 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
         setERC20Balance(address(COLLATERAL), address(this), locs.initialDeposit);
         setERC20Balance(address(COLLATERAL), offerer, locs.collateralToPurchase);
 
-        (uint256 collateralBefore, uint256 debtBefore) = weEthIonPool.vault(0, address(this));
+        (uint256 collateralBefore,) = weEthIonPool.vault(0, address(this));
 
         // spot * resultingAdditionalDeposit * liquidationThreshold > normalizedDebt * rate
         uint256 adjCollateralValueWad =
@@ -133,7 +135,7 @@ contract SeaportLeverage_FuzzTest is SeaportTestBase {
 
         (uint256 collateralAfter, uint256 normalizedDebtAfter) = weEthIonPool.vault(0, address(this));
         uint256 debtAfterRad = normalizedDebtAfter * locs.rate;
-        
+
         // no dust left in the contract in base asset or collateral asset
         assertLe(BASE.balanceOf(address(weEthSeaportLeverage)), 1, "base asset dust below 1 wei");
         assertEq(COLLATERAL.balanceOf(address(weEthSeaportLeverage)), 0, "no collateral asset dust");

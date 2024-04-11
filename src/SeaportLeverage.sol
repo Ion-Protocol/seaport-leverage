@@ -2,10 +2,12 @@
 pragma solidity 0.8.24;
 
 import { SeaportBase } from "./SeaportBase.sol";
-
 import { IIonPool } from "./interfaces/IIonPool.sol";
 import { IGemJoin } from "./interfaces/IGemJoin.sol";
 import { IWhitelist } from "./interfaces/IWhitelist.sol";
+
+import { WadRayMath } from "@ionprotocol/libraries/math/WadRayMath.sol";
+
 import {
     Order,
     OrderParameters,
@@ -14,10 +16,8 @@ import {
     ItemType
 } from "seaport-types/src/lib/ConsiderationStructs.sol";
 
-import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
-import { SafeERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-
-import { WadRayMath } from "ion-protocol/src/libraries/math/WadRayMath.sol";
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title Seaport Leverage

@@ -4,11 +4,14 @@ pragma solidity 0.8.24;
 import { SeaportBase } from "./SeaportBase.sol";
 import { IIonPool } from "./interfaces/IIonPool.sol";
 import { IGemJoin } from "./interfaces/IGemJoin.sol";
+
 import { WadRayMath } from "@ionprotocol/libraries/math/WadRayMath.sol";
+
 import { Order, OrderParameters, OfferItem, ConsiderationItem } from "seaport-types/src/lib/ConsiderationStructs.sol";
 import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
-import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
-import { SafeERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 using WadRayMath for uint256;
 using SafeERC20 for IERC20;

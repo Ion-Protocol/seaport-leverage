@@ -24,15 +24,15 @@ import {
     OrderComponents
 } from "seaport-types/src/lib/ConsiderationStructs.sol";
 import { CalldataStart, CalldataPointer } from "seaport-types/src/helpers/PointerLibraries.sol";
+
 import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
+
 import { StdStorage, stdStorage } from "forge-std/StdStorage.sol";
 import { Test } from "forge-std/Test.sol";
 
 using EtherFiLibrary for IWeEth;
 using KelpDaoLibrary for IRsEth;
 using LidoLibrary for IWstEth;
-
-import { console2 } from "forge-std/console2.sol";
 
 contract SeaportOrderHash is Seaport {
     constructor(address conduitController) Seaport(conduitController) { }
@@ -290,8 +290,6 @@ contract SeaportTestBase is Test {
 
         // test
         address signer = ecrecover(bytes32(signature), v, r, s);
-        console2.log("signer: ", signer);
-        // require(signer == offerer, "signer not offerer");
 
         order = Order({ parameters: params, signature: signature });
     }
