@@ -71,6 +71,8 @@ import { WadRayMath } from "ion-protocol/src/libraries/math/WadRayMath.sol";
  * This allows this contract to gain control flow in between steps 3 and 4
  * through the `transferFrom()` function and Seaport still enforces the
  * `constraints` of the other `Consideration`s ensuring counterparty's terms.
+ *
+ * @custom:security-contact security@molecularlabs.io
  */
 contract SeaportLeverage is SeaportBase {
     using SafeERC20 for IERC20;
@@ -340,7 +342,7 @@ contract SeaportLeverage is SeaportBase {
         // Gets the normalized amount such that the reuslting borrowed amount is at least `amountToBorrow`.
         // This may create dust amounts of additional debt than intended.
         uint256 amountToBorrowNormalized = amountToBorrow.rayDivUp(currentRate);
-
+        
         JOIN.join(address(this), resultingAdditionalCollateral);
         POOL.depositCollateral(ILK_INDEX, user, address(this), resultingAdditionalCollateral, new bytes32[](0));
         POOL.borrow(ILK_INDEX, user, address(this), amountToBorrowNormalized, new bytes32[](0));
