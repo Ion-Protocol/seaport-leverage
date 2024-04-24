@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 import { SeaportBase } from "./SeaportBase.sol";
 import { IIonPool } from "./interfaces/IIonPool.sol";
 import { IGemJoin } from "./interfaces/IGemJoin.sol";
-import { WadRayMath } from "@ionprotocol/libraries/math/WadRayMath.sol";
+import { WadRayMath } from "@ionprotocol/src/libraries/math/WadRayMath.sol";
 import { Order, OrderParameters, OfferItem, ConsiderationItem } from "seaport-types/src/lib/ConsiderationStructs.sol";
 import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
 import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
