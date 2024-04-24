@@ -187,7 +187,7 @@ contract SeaportDeleverage is SeaportBase {
      * @param debtToRepay Amount of debt to repay. [WAD]
      */
     function deleverage(Order calldata order, uint256 collateralToRemove, uint256 debtToRepay) external {
-        uint256 currentCollateral = POOL.collateral(0, msg.sender);
+        uint256 currentCollateral = POOL.collateral(ILK_INDEX, msg.sender);
         if (collateralToRemove > currentCollateral) revert NotEnoughCollateral(collateralToRemove, currentCollateral);
 
         OrderParameters calldata params = order.parameters;
@@ -269,8 +269,8 @@ contract SeaportDeleverage is SeaportBase {
             collateralToRemove := tload(TSLOT_COLLATERAL_DELTA)
         }
 
-        uint256 currentRate = POOL.rate(0);
-        uint256 currentNormalizedDebt = POOL.normalizedDebt(0, user);
+        uint256 currentRate = POOL.rate(ILK_INDEX);
+        uint256 currentNormalizedDebt = POOL.normalizedDebt(ILK_INDEX, user);
 
         uint256 repayAmountNormalized = debtToRepay.rayDivDown(currentRate);
 
@@ -284,12 +284,12 @@ contract SeaportDeleverage is SeaportBase {
             uint256 neccesaryBase = currentNormalizedDebt.rayMulUp(currentRate);
 
             BASE.transfer(user, debtToRepay - neccesaryBase);
-            POOL.repay(0, user, address(this), currentNormalizedDebt);
+            POOL.repay(ILK_INDEX, user, address(this), currentNormalizedDebt);
         } else {
-            POOL.repay(0, user, address(this), repayAmountNormalized);
+            POOL.repay(ILK_INDEX, user, address(this), repayAmountNormalized);
         }
 
-        POOL.withdrawCollateral(0, user, address(this), collateralToRemove);
+        POOL.withdrawCollateral(ILK_INDEX, user, address(this), collateralToRemove);
         JOIN.exit(address(this), collateralToRemove);
     }
 }
