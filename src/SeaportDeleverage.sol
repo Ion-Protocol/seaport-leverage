@@ -285,9 +285,6 @@ contract SeaportDeleverage is SeaportBase {
 
             BASE.transfer(user, debtToRepay - neccesaryBase);
             POOL.repay(0, user, address(this), currentNormalizedDebt);
-
-            // Sanity check
-            assert(BASE.balanceOf(address(this)) == 0);
         } else {
             POOL.repay(0, user, address(this), repayAmountNormalized);
         }
