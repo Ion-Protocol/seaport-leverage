@@ -296,6 +296,30 @@ contract SeaportTestBase is Test {
         order = Order({ parameters: params, signature: signature });
     }
 
+    function _createLeveragePosition(
+        uint256 initialDeposit,
+        uint256 resultingAdditionalCollateral,
+        uint256 maxResultingDebt
+    )
+        public
+    {
+        weEthIonPool.addOperator(address(weEthHandler));
+        weEthIonPool.addOperator(address(weEthSeaportDeleverage));
+
+        BASE.approve(address(weEthHandler), type(uint256).max);
+        COLLATERAL.approve(address(weEthHandler), type(uint256).max);
+
+        setERC20Balance(address(COLLATERAL), address(this), initialDeposit);
+
+        weEthHandler.flashswapAndMint(
+            initialDeposit,
+            resultingAdditionalCollateral,
+            maxResultingDebt,
+            block.timestamp + 1_000_000_000_000,
+            new bytes32[](0)
+        );
+    }
+
     function setERC20Balance(address token, address usr, uint256 amt) public {
         stdstore1.target(token).sig(IERC20(token).balanceOf.selector).with_key(usr).checked_write(amt);
         require(IERC20(token).balanceOf(usr) == amt, "balance not set");

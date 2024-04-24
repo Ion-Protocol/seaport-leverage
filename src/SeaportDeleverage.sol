@@ -4,16 +4,14 @@ pragma solidity 0.8.24;
 import { SeaportBase } from "./SeaportBase.sol";
 import { IIonPool } from "./interfaces/IIonPool.sol";
 import { IGemJoin } from "./interfaces/IGemJoin.sol";
-import { IWhitelist } from "./interfaces/IWhitelist.sol";
 import { WadRayMath } from "@ionprotocol/libraries/math/WadRayMath.sol";
-
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import { SeaportInterface } from "seaport-types/src/interfaces/SeaportInterface.sol";
 import { Order, OrderParameters, OfferItem, ConsiderationItem } from "seaport-types/src/lib/ConsiderationStructs.sol";
-import { ItemType, OrderType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 using WadRayMath for uint256;
+using SafeERC20 for IERC20;
 
 /**
  * @title Seaport Deleverage
@@ -78,6 +76,7 @@ using WadRayMath for uint256;
  * a full deleverage, the market maker can overestimate the amount of base token
  * to be sold and this contract will refund the excess to the user.
  *
+ * @custom:security-contact security@molecularlabs.io
  */
 contract SeaportDeleverage is SeaportBase {
     error NotEnoughCollateral(uint256 collateralToRemove, uint256 currentCollateral);
@@ -276,7 +275,7 @@ contract SeaportDeleverage is SeaportBase {
 
         // In the case of a full deleverage, the Seaport order will not be able
         // to predict the exact amount of debt to repay since this will change
-        // at execution time when debt is accrued. The order will have to to
+        // at execution time when debt is accrued. The order will have to
         // overestimate the amount of base token to be traded for through
         // seaport. Excess base token will be refunded to the user.
         if (repayAmountNormalized > currentNormalizedDebt) {

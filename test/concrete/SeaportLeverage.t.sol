@@ -2,8 +2,8 @@
 pragma solidity 0.8.24;
 
 import { SeaportBase } from "./../../src/SeaportBase.sol";
+import { RAY } from "ion-protocol/src/libraries/math/WadRayMath.sol";
 import { SeaportTestBase } from "../SeaportTestBase.sol";
-import { IIonPool } from "./../../src/interfaces/IIonPool.sol";
 import { SeaportLeverage } from "./../../src/SeaportLeverage.sol";
 import {
     OfferItem,
@@ -13,8 +13,11 @@ import {
     OrderComponents
 } from "seaport-types/src/lib/ConsiderationStructs.sol";
 import { OrderType, ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract SeaportLeverage_Test is SeaportTestBase {
+    using Math for uint256;
+    
     uint256 initialDeposit = 10e18;
     uint256 resultingAdditionalCollateral = 12e18;
     uint256 collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
@@ -82,7 +85,59 @@ contract SeaportLeverage_Test is SeaportTestBase {
         assertEq(debtAfterWad - debtBeforeWad, amountToBorrow, "change in debt");
     }
 
-    function test_WeEthLeverageFromExistingVault() public { }
+    function test_WeEthLeverageFromExistingVault() public {
+        uint256 rate = weEthIonPool.rate(0);
+        
+        uint256 startingInitialDeposit = 15 ether; 
+        uint256 startingResultingAdditionalCollateral = 20 ether;
+        uint256 maxResultingDebt = 10 ether; 
+        
+        _createLeveragePosition(
+            startingInitialDeposit,
+            startingResultingAdditionalCollateral,
+            maxResultingDebt
+        );
+
+        // Starting Position
+        (uint256 collateralBefore, uint256 normalizedDebtBefore) = weEthIonPool.vault(0, address(this));
+        uint256 debtBeforeWad = normalizedDebtBefore.mulDiv(rate, RAY);
+
+        // Seaport Leverage
+        initialDeposit = 2 ether; 
+        resultingAdditionalCollateral = 5 ether;
+        collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
+        amountToBorrow = 3 ether;
+
+        setERC20Balance(address(COLLATERAL), address(this), initialDeposit);
+        setERC20Balance(address(COLLATERAL), offerer, collateralToPurchase);
+
+        Order memory order =
+        _createLeverageOrder(weEthIonPool, weEthSeaportLeverage, collateralToPurchase, amountToBorrow, 1_241_289);
+
+        weEthSeaportLeverage.leverage(
+            order, initialDeposit, resultingAdditionalCollateral, amountToBorrow, new bytes32[](0)
+        );
+
+        (uint256 collateralAfter, uint256 normalizedDebtAfter) = weEthIonPool.vault(0, address(this));
+        uint256 debtAfterWad = normalizedDebtAfter.mulDiv(rate, RAY);
+
+        uint256 expectedDebtAfterWad = debtBeforeWad + amountToBorrow;
+
+        // no dust left in the contract in base asset or collateral asset
+        assertLe(BASE.balanceOf(address(weEthSeaportLeverage)), 1, "base asset dust below 1 wei");
+        assertEq(COLLATERAL.balanceOf(address(weEthSeaportLeverage)), 0, "no collateral asset dust");
+
+        // exact desired amount of collateral reached
+        assertEq(collateralAfter, collateralBefore + resultingAdditionalCollateral, "resulting collateral amount");
+
+        // resulting debt amount under maximum dust bounded by the rate
+        assertLe(debtAfterWad - expectedDebtAfterWad, 1, "resulting debt amount in wad within 1 wei");
+
+        // exact amounts of assets transferred
+        assertEq(COLLATERAL.balanceOf(address(this)), 0, "all initial deposit transferred");
+        assertEq(COLLATERAL.balanceOf(offerer), 0, "all collateral transferred from offerer");
+
+    }
 
     function test_RevertWhen_OffersArrayLengthNotOne() public {
         Order memory order =
@@ -365,9 +420,9 @@ contract SeaportLeverage_Test is SeaportTestBase {
     }
 
     function test_RevertWhen_LeverageAmountIsZero() public {
-        uint256 initialDeposit = 1 ether;
-        uint256 resultingAdditionalCollateral = 1 ether;
-        uint256 collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
+        initialDeposit = 1 ether;
+        resultingAdditionalCollateral = 1 ether;
+        collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
 
         Order memory order =
             _createLeverageOrder(weEthIonPool, weEthSeaportLeverage, collateralToPurchase, amountToBorrow, 1_241_289);

@@ -2,6 +2,7 @@
 pragma solidity 0.8.24;
 
 import { IERC20 } from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IIonPool } from "./interfaces/IIonPool.sol";
 import { IGemJoin } from "./interfaces/IGemJoin.sol";
 import { SeaportInterface } from "seaport-types/src/interfaces/SeaportInterface.sol";
@@ -14,8 +15,12 @@ import { OrderParameters } from "seaport-types/src/lib/ConsiderationStructs.sol"
  * @dev The child contracts such as the deleverage and leverage contract will need to implement
  * further validation checks for the signer payload specific to their usecase. This contract
  * only constrains the general seaport order parameters that are shared among child contracts.
+ *
+ * @custom:security-contact security@molecularlabs.io
  */
 abstract contract SeaportBase {
+    using SafeERC20 for IERC20;
+
     error InvalidContractConfigs(IIonPool pool, IGemJoin join);
 
     // Callback
@@ -27,7 +32,6 @@ abstract contract SeaportBase {
     error ConsiderationsLengthMustBeTwo(uint256 length);
     error ZoneMustBeThis(address zone);
     error OrderTypeMustBeFullRestricted(OrderType orderType);
-    error ZoneHashMustBeZero(bytes32 zoneHash);
     error ConduitKeyMustBeZero(bytes32 conduitKey);
     error InvalidTotalOriginalConsiderationItems();
 
@@ -96,7 +100,7 @@ abstract contract SeaportBase {
         COLLATERAL = IERC20(gemJoin.GEM());
     }
 
-    function _validateOrderParams(OrderParameters calldata params) internal {
+    function _validateOrderParams(OrderParameters calldata params) internal view {
         if (params.offer.length != 1) revert OffersLengthMustBeOne(params.offer.length);
         if (params.consideration.length != 2) revert ConsiderationsLengthMustBeTwo(params.consideration.length);
         if (params.zone != address(this)) revert ZoneMustBeThis(params.zone);
