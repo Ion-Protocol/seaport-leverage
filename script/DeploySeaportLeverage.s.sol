@@ -33,6 +33,9 @@ contract DeploySeaportLeverageScript is BaseScript {
         require(address(whitelist).code.length > 0, "whitelist address must have code");
         require(ionPool.hasRole(ionPool.GEM_JOIN_ROLE(), address(gemJoin)), "gemJoin must have GEM_JOIN_ROLE");
         require(address(ionPool.whitelist()) == address(whitelist), "whitelist must have WHITELIST_ROLE");
+        require(gemJoin.GEM() == ionPool.underlying(), "GEM must be underlying");
+        require(gemJoin.POOL() == address(ionPool), "POOL must be ionPool");
+        require(gemJoin.ILK_INDEX() == ilkIndex, "ILK_INDEX must match");
 
         bytes memory initCode = type(SeaportLeverage).creationCode;
 
