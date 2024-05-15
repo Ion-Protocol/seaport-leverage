@@ -17,7 +17,7 @@ import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract SeaportLeverage_Test is SeaportTestBase {
     using Math for uint256;
-    
+
     uint256 initialDeposit = 10e18;
     uint256 resultingAdditionalCollateral = 12e18;
     uint256 collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
@@ -87,23 +87,19 @@ contract SeaportLeverage_Test is SeaportTestBase {
 
     function test_WeEthLeverageFromExistingVault() public {
         uint256 rate = weEthIonPool.rate(0);
-        
-        uint256 startingInitialDeposit = 15 ether; 
+
+        uint256 startingInitialDeposit = 15 ether;
         uint256 startingResultingAdditionalCollateral = 20 ether;
-        uint256 maxResultingDebt = 10 ether; 
-        
-        _createLeveragePosition(
-            startingInitialDeposit,
-            startingResultingAdditionalCollateral,
-            maxResultingDebt
-        );
+        uint256 maxResultingDebt = 10 ether;
+
+        _createLeveragePosition(startingInitialDeposit, startingResultingAdditionalCollateral, maxResultingDebt);
 
         // Starting Position
         (uint256 collateralBefore, uint256 normalizedDebtBefore) = weEthIonPool.vault(0, address(this));
         uint256 debtBeforeWad = normalizedDebtBefore.mulDiv(rate, RAY);
 
         // Seaport Leverage
-        initialDeposit = 2 ether; 
+        initialDeposit = 2 ether;
         resultingAdditionalCollateral = 5 ether;
         collateralToPurchase = resultingAdditionalCollateral - initialDeposit;
         amountToBorrow = 3 ether;
@@ -112,7 +108,7 @@ contract SeaportLeverage_Test is SeaportTestBase {
         setERC20Balance(address(COLLATERAL), offerer, collateralToPurchase);
 
         Order memory order =
-        _createLeverageOrder(weEthIonPool, weEthSeaportLeverage, collateralToPurchase, amountToBorrow, 1_241_289);
+            _createLeverageOrder(weEthIonPool, weEthSeaportLeverage, collateralToPurchase, amountToBorrow, 1_241_289);
 
         weEthSeaportLeverage.leverage(
             order, initialDeposit, resultingAdditionalCollateral, amountToBorrow, new bytes32[](0)
@@ -136,7 +132,6 @@ contract SeaportLeverage_Test is SeaportTestBase {
         // exact amounts of assets transferred
         assertEq(COLLATERAL.balanceOf(address(this)), 0, "all initial deposit transferred");
         assertEq(COLLATERAL.balanceOf(offerer), 0, "all collateral transferred from offerer");
-
     }
 
     function test_RevertWhen_OffersArrayLengthNotOne() public {
