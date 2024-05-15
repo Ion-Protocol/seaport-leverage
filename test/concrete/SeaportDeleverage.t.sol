@@ -5,9 +5,9 @@ import { SeaportBase } from "./../../src/SeaportBase.sol";
 import { SeaportDeleverage } from "../../src/SeaportDeleverage.sol";
 import { SeaportTestBase } from "../SeaportTestBase.sol";
 
-import { LidoLibrary } from "@ionprotocol/libraries/lst/LidoLibrary.sol";
-import { IWstEth, IWeEth } from "@ionprotocol/interfaces/ProviderInterfaces.sol";
-import { EtherFiLibrary } from "@ionprotocol/libraries/lrt/EtherFiLibrary.sol";
+import { LidoLibrary } from "@ionprotocol/src/libraries/lst/LidoLibrary.sol";
+import { IWstEth, IWeEth } from "@ionprotocol/src/interfaces/ProviderInterfaces.sol";
+import { EtherFiLibrary } from "@ionprotocol/src/libraries/lrt/EtherFiLibrary.sol";
 
 import { OrderType, ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
 import { OfferItem, ConsiderationItem, Order, OrderComponents } from "seaport-types/src/lib/ConsiderationStructs.sol";

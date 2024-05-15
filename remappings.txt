@@ -1,7 +1,7 @@
 @balancer-labs/v2-interfaces/=lib/ion-protocol/lib/balancer-v2-monorepo/pkg/interfaces/
 @balancer-labs/v2-pool-stable/=lib/ion-protocol/lib/balancer-v2-monorepo/pkg/pool-stable/
 @chainlink/contracts/=lib/ion-protocol/lib/chainlink/contracts/
-@ionprotocol/=lib/ion-protocol/src/
+@ionprotocol/=lib/ion-protocol/
 @openzeppelin/contracts-upgradeable/=lib/ion-protocol/lib/openzeppelin-contracts-upgradeable/contracts/
 @openzeppelin/contracts/=lib/ion-protocol/lib/openzeppelin-contracts/contracts/
 @uniswap/v3-core/=lib/ion-protocol/lib/v3-core/

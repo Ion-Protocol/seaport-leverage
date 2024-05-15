@@ -8,10 +8,10 @@ import { IUFDMHandler } from "../src/interfaces/IUFDMHandler.sol";
 import { IWhitelist } from "../src/interfaces/IWhitelist.sol";
 import { SeaportDeleverage } from "../src/SeaportDeleverage.sol";
 
-import { LidoLibrary } from "@ionprotocol/libraries/lst/LidoLibrary.sol";
-import { KelpDaoLibrary } from "@ionprotocol/libraries/lrt/KelpDaoLibrary.sol";
-import { IWstEth, IWeEth, IEEth, IRsEth } from "@ionprotocol/interfaces/ProviderInterfaces.sol";
-import { EtherFiLibrary } from "@ionprotocol/libraries/lrt/EtherFiLibrary.sol";
+import { LidoLibrary } from "@ionprotocol/src/libraries/lst/LidoLibrary.sol";
+import { KelpDaoLibrary } from "@ionprotocol/src/libraries/lrt/KelpDaoLibrary.sol";
+import { IWstEth, IWeEth, IEEth, IRsEth } from "@ionprotocol/src/interfaces/ProviderInterfaces.sol";
+import { EtherFiLibrary } from "@ionprotocol/src/libraries/lrt/EtherFiLibrary.sol";
 
 import { Seaport } from "seaport-core/src/Seaport.sol";
 

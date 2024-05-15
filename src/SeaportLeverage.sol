@@ -342,7 +342,7 @@ contract SeaportLeverage is SeaportBase {
         // Gets the normalized amount such that the reuslting borrowed amount is at least `amountToBorrow`.
         // This may create dust amounts of additional debt than intended.
         uint256 amountToBorrowNormalized = amountToBorrow.rayDivUp(currentRate);
-        
+
         JOIN.join(address(this), resultingAdditionalCollateral);
         POOL.depositCollateral(ILK_INDEX, user, address(this), resultingAdditionalCollateral, new bytes32[](0));
         POOL.borrow(ILK_INDEX, user, address(this), amountToBorrowNormalized, new bytes32[](0));
